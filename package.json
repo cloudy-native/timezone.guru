@@ -1,0 +1,49 @@
+{
+  "name": "timezone-guru",
+  "version": "1.0.0",
+  "private": true,
+  "description": "timezone-guru",
+  "author": "Stephen Harrison",
+  "keywords": [
+    "gatsby"
+  ],
+  "scripts": {
+    "develop": "gatsby develop",
+    "start": "gatsby develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve",
+    "clean": "gatsby clean",
+    "typecheck": "tsc --noEmit",
+    "generate": "npx ts-node ./script/make_timezone_groups"
+  },
+  "dependencies": {
+    "@chakra-ui/gatsby-plugin": "^3.0.6",
+    "@chakra-ui/icons": "^2.0.11",
+    "@chakra-ui/react": "^2.3.7",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@mdx-js/react": "^2.1.5",
+    "@types/lodash": "^4.14.188",
+    "chakra-dayzed-datepicker": "^0.2.5",
+    "chakra-react-select": "^4.4.0",
+    "date-fns": "^2.29.3",
+    "dayzed": "^3.2.3",
+    "framer-motion": "^7.6.5",
+    "gatsby": "^5.0.0",
+    "gatsby-plugin-image": "^3.0.0",
+    "gatsby-plugin-mdx": "^5.0.0",
+    "gatsby-plugin-sharp": "^5.0.0",
+    "gatsby-source-filesystem": "^5.0.0",
+    "gatsby-transformer-sharp": "^5.0.0",
+    "lodash": "^4.17.21",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "ts-node": "^10.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.8",
+    "typescript": "^4.8.4"
+  }
+}
