@@ -11,6 +11,25 @@ const config: GatsbyConfig = {
   graphqlTypegen: true,
   plugins: [
     {
+      resolve: `gatsby-plugin-google-gtag`,
+      options: {
+        trackingIds: [
+          "GTM-MLK92S88",
+        ],
+        gtagConfig: {
+          optimize_id: "OPT_CONTAINER_ID",
+          anonymize_ip: true,
+          cookie_expires: 0,
+        },
+        pluginConfig: {
+          head: false,
+          respectDNT: true,
+          exclude: [],
+          delayOnRouteUpdate: 0,
+        },
+      }
+    },
+    {
       resolve: "@chakra-ui/gatsby-plugin",
       options: {
         resetCSS: true,
