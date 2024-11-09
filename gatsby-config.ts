@@ -15,6 +15,7 @@ const config: GatsbyConfig = {
       options: {
         trackingIds: [
           "GTM-MLK92S88",
+          "G-QMD15NZW3L"
         ],
         gtagConfig: {
           optimize_id: "OPT_CONTAINER_ID",

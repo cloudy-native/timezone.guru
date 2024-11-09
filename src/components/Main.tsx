@@ -27,15 +27,22 @@ import { Intro } from "./Intro";
 
 // Tried for all of 3 mins to get enums working here...
 //
-const SLEEP = "sleep";
-const WORK = "work";
-const PLAY = "play";
+const SLEEP = "Sleep";
+const WORK = "Work";
+const PLAY = "Play";
 
 const timeZoneData = getTimeZoneData();
 
 console.log(timeZoneData);
 
-// The big hand's on the...
+// 24HR clock for normal people
+//
+const universalHours = Array(24)
+  .fill("")
+  .map((_, index) => index.toString().padStart(2, "0"));
+const universalClockType = "24h";
+
+// When the big hand's on the...
 //
 const clockHours = [
   "12A",
@@ -63,12 +70,7 @@ const clockHours = [
   "10P",
   "11P",
 ];
-
-// 24HR clock
-//
-const universalHours = Array(24)
-  .fill("")
-  .map((_, index) => index.toString().padStart(2, "0"));
+const clockHoursClockType = "When the big hand's on the...";
 
 export function Main() {
   const [timeZones, setTimeZones] = useState<TimeZone[]>([]);
@@ -78,7 +80,9 @@ export function Main() {
     ...Array(8).fill(PLAY),
   ]);
   const [date, setDate] = useState(new Date());
-  const [hourSymbols, setHourSymbols] = useState(clockHours);
+  const [hourSymbols, setHourSymbols] = useState(universalHours);
+  const [clockType, setClockType] = useState(universalClockType);
+  const [hint, setHint] = useState(SLEEP);
 
   function colorSchemeFor(activity: string): string | undefined {
     switch (activity) {
@@ -114,8 +118,10 @@ export function Main() {
   //
   timeZones.forEach((timeZone) => {
     tableElements.push(
-      <GridItem colSpan={3} >
-        <Text size={"xs"}>{timeZone.label}</Text>
+      <GridItem colSpan={24}>
+        <Text size={"xs"} style={{ textTransform: "uppercase" }}>
+          {timeZone.label}
+        </Text>
       </GridItem>
     );
 
@@ -128,13 +134,8 @@ export function Main() {
       const colorScheme = colorSchemeFor(activities[timeZoneHour]);
 
       tableElements.push(
-        <GridItem key={"hour"}>
-          <Button
-            variant={buttonVariant}
-            colorScheme={colorScheme}
-            size={"xs"}
-            width={"100%"}
-          >
+        <GridItem key={hour}>
+          <Button variant={buttonVariant} colorScheme={colorScheme} size={"xs"}>
             {hourSymbols[timeZoneHour]}
           </Button>
         </GridItem>
@@ -145,58 +146,86 @@ export function Main() {
   return (
     <VStack align={"stretch"} spacing={4} mt={10}>
       <Intro />
-      <Flex alignItems={"stretch"}>
+      <HStack spacing={4}>
+        <Text>Set clock type</Text>
         <Switch
+          defaultChecked
           onChange={(v) => {
             setHourSymbols(v.target.checked ? universalHours : clockHours);
+            setClockType(
+              v.target.checked ? universalClockType : clockHoursClockType
+            );
           }}
         >
-          24H
+          {clockType}
         </Switch>
-        <Spacer />
-        <ButtonGroup size={"xs"}>
-          <Button colorScheme={colorSchemeFor(SLEEP)}>Sleep</Button>
-          <Button colorScheme={colorSchemeFor(WORK)}>Work</Button>
-          <Button colorScheme={colorSchemeFor(PLAY)}>Play</Button>
-          <Button colorScheme={colorSchemeFor(SLEEP)} variant={"outline"}>
-            Midnight
-          </Button>
-        </ButtonGroup>
-      </Flex>
+      </HStack>
       <Card>
         <CardHeader>
           <Heading size="md">Sleep, work, play times</Heading>
           <Text>
             Set an activity for each hour in the day. It doesn't have to be very
-            accurate because you'll see a general period of overlap.
+            accurate because you'll see a general period of overlap when we get
+            to the good bit.
           </Text>
         </CardHeader>
         <CardBody>
-          <HStack>
-            {Array(24)
-              .fill("")
-              .map((n, hour) => {
-                return (
-                  <RadioGroup
-                    key={hour}
-                    value={activities[hour]}
-                    onChange={(v) => updateActivities(v, hour)}
-                  >
-                    <VStack alignItems={"flex-start"}>
-                      <Text>{hourSymbols[hour]}</Text>
-                      <Radio value={SLEEP} colorScheme={colorSchemeFor(SLEEP)}>
-                        <Text fontSize={"xs"}>{hour === 0 ? "sleep" : ""}</Text>
-                      </Radio>
-                      <Radio value={WORK} colorScheme={colorSchemeFor(WORK)}>
-                        <Text fontSize={"xs"}>{hour === 0 ? "work" : ""}</Text>
-                      </Radio>
-                      <Radio value={PLAY} colorScheme={colorSchemeFor(PLAY)}>
-                        <Text fontSize={"xs"}>{hour === 0 ? "play" : ""}</Text>
-                      </Radio>
-                    </VStack>
-                  </RadioGroup>
-                );
-              })}
+          <HStack spacing={10}>
+            <RadioGroup value={hint}>
+              <VStack alignItems={"flex-start"}>
+                <Text>Hint</Text>
+                <Radio
+                  value={SLEEP}
+                  colorScheme={colorSchemeFor(SLEEP)}
+                  onChange={(v) => setHint(SLEEP)}
+                >
+                  <Text fontSize={"xs"}>{SLEEP}</Text>
+                </Radio>
+                <Radio
+                  value={WORK}
+                  colorScheme={colorSchemeFor(WORK)}
+                  onChange={(v) => setHint(WORK)}
+                >
+                  <Text fontSize={"xs"}>{WORK}</Text>
+                </Radio>
+                <Radio
+                  value={PLAY}
+                  colorScheme={colorSchemeFor(PLAY)}
+                  onChange={(v) => setHint(PLAY)}
+                >
+                  <Text fontSize={"xs"}>{PLAY}</Text>
+                </Radio>
+              </VStack>
+            </RadioGroup>
+            <HStack>
+              {Array(24)
+                .fill("")
+                .map((n, hour) => {
+                  return (
+                    <RadioGroup
+                      key={hour}
+                      value={activities[hour]}
+                      onChange={(v) => updateActivities(v, hour)}
+                    >
+                      <VStack alignItems={"flex-start"}>
+                        <Text>{hourSymbols[hour]}</Text>
+                        <Radio
+                          value={SLEEP}
+                          colorScheme={colorSchemeFor(SLEEP)}
+                        ></Radio>
+                        <Radio
+                          value={WORK}
+                          colorScheme={colorSchemeFor(WORK)}
+                        ></Radio>
+                        <Radio
+                          value={PLAY}
+                          colorScheme={colorSchemeFor(PLAY)}
+                        ></Radio>
+                      </VStack>
+                    </RadioGroup>
+                  );
+                })}
+            </HStack>
           </HStack>
         </CardBody>
       </Card>
@@ -207,38 +236,39 @@ export function Main() {
         </CardHeader>
         <CardBody>
           <Flex alignItems={"stretch"}>
-            <Button
-              colorScheme={"blue"}
-              onClick={(_) => {
-                setDate(new Date());
-              }}
-            >
-              Now
-            </Button>
-            <Box>
-              <SingleDatepicker
-                name="date-input"
-                date={date}
-                onDateChange={(newDate) => {
-                  console.log("datepicker", newDate);
-                  // Add back current time
-                  //
-                  const now = new Date();
-
-                  newDate.setHours(
-                    now.getHours(),
-                    now.getMinutes(),
-                    now.getSeconds()
-                  );
-
-                  setDate(newDate);
+            <HStack>
+              <Button
+                colorScheme={"blue"}
+                onClick={(_) => {
+                  setDate(new Date());
                 }}
-              />
-            </Box>
+              >
+                Today
+              </Button>
+              <Box>
+                <SingleDatepicker
+                  name="date-input"
+                  date={date}
+                  onDateChange={(newDate) => {
+                    console.log("datepicker", newDate);
+                    // Add back current time
+                    //
+                    const now = new Date();
+
+                    newDate.setHours(
+                      now.getHours(),
+                      now.getMinutes(),
+                      now.getSeconds()
+                    );
+
+                    setDate(newDate);
+                  }}
+                />
+              </Box>
+            </HStack>
             <Spacer />
             <Box width={"xl"}>
               <Select
-                hasStickyGroupHeaders
                 isMulti
                 name="countries"
                 options={timeZoneData}
@@ -252,13 +282,18 @@ export function Main() {
       </Card>
       <Card>
         <CardHeader>
-          <Heading size={"md"}>Now find good times</Heading>
-          <Text>Pick a column when most people are awake.</Text>
+          <Heading size={"md"}>Details</Heading>
+          <ButtonGroup size={"xs"}>
+            <Button colorScheme={colorSchemeFor(SLEEP)}>Sleep</Button>
+            <Button colorScheme={colorSchemeFor(WORK)}>Work</Button>
+            <Button colorScheme={colorSchemeFor(PLAY)}>Play</Button>
+            <Button colorScheme={colorSchemeFor(SLEEP)} variant={"outline"}>
+              Midnight
+            </Button>
+          </ButtonGroup>
         </CardHeader>
         <CardBody>
-          <Grid templateColumns={`repeat(${24 + 2 + 1}, 1fr)`} gap={"1"}>
-            {tableElements}
-          </Grid>
+          <Grid>{tableElements}</Grid>
         </CardBody>
       </Card>
     </VStack>
