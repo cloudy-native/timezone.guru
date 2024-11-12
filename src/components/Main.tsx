@@ -132,10 +132,11 @@ export function Main() {
       const timeZoneDate = utc.setZone(timeZone.value);
       const timeZoneHour = timeZoneDate.hour;
       const buttonVariant = timeZoneHour == 0 ? "outline" : "solid";
-      const colorScheme = colorSchemeFor(activities[timeZoneHour]);
+      const activity = activities[timeZoneHour];
+      const colorScheme = colorSchemeFor(activity);
 
       tableElements.push(
-        <GridItem key={hour}>
+        <GridItem key={timeZone.label + "_" + hour}>
           <Button variant={buttonVariant} colorScheme={colorScheme} size={"xs"}>
             {hourSymbols[timeZoneHour]}
           </Button>
@@ -231,22 +232,21 @@ export function Main() {
         <CardHeader>
           <Heading size={"md"}>When and where?</Heading>
           <Text>
-            Pick a date and as many cities as you like. We'll lookup their
-            current time zones. Note that the list of cities is just the ones
-            supported natively by your browser. We take care of things like
-            Summer Time too. Try London and Paris on October 26, 2024 and see
-            1AM appear twice because the clocks went back an hour at 2AM.
+            Pick a date and any cities you'd like. We'll look up their current
+            time zones for you. Keep in mind, the list of cities available is
+            based on what your browser supports.
+            <br />
+            <br />
+            We also take care of things like Daylight Saving Time (DST). For
+            example, try London and Paris on October 26, 2024. You'll see 1 AM
+            listed twice because at 2 AM, the clocks will "fall back" one hour
+            due to DST.
           </Text>
         </CardHeader>
         <CardBody>
           <Flex alignItems={"stretch"}>
             <HStack>
-              <Button
-                colorScheme={"blue"}
-                onClick={(_) => {
-                  setDate(new Date());
-                }}
-              >
+              <Button colorScheme={"blue"} onClick={(_) => setDate(new Date())}>
                 Today
               </Button>
               <Box>
@@ -276,7 +276,7 @@ export function Main() {
                 isMulti
                 name="countries"
                 options={timeZoneData}
-                placeholder="Select locations and timezones..."
+                placeholder="Select cities..."
                 closeMenuOnSelect={false}
                 onChange={updateTimeZones}
               />

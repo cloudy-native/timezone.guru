@@ -6,12 +6,12 @@ export function Intro() {
     <SimpleGrid columns={2} spacing={10}>
       <Box>
         <Text fontSize={"4xl"}>
-          timezone.guru is your trusted partner for scheduling time together
-          around the globe.
+          Timezone.guru is your trusted partner for global scheduling.
         </Text>
+        <br/>
         <Text fontSize={"xl"}>
-          Pick some time zones and a daily schedule and we'll show you the best
-          times to get together.
+          Choose a few time zones and a daily schedule, and we'll suggest the
+          best times to meet.
         </Text>
       </Box>
       <Link href="https://en.wikipedia.org/wiki/Time_zone">
