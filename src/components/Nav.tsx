@@ -19,7 +19,7 @@ export function Nav() {
     <Box bg={useColorModeValue("gray.200", "gray.900")} px={4}>
       <Flex h={24} alignItems={"center"} justifyContent={"space-between"}>
         <Heading size={"2xl"}>
-          <GatsbyLink to="/">Timezone Guru</GatsbyLink>
+          <GatsbyLink to="/">Time Zone Guru</GatsbyLink>
         </Heading>
         <Flex alignItems={"center"}>
           <Stack direction={"row"} spacing={7}>

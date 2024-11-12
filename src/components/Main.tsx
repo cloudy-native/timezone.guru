@@ -5,7 +5,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Divider,
   Flex,
   Grid,
   GridItem,
@@ -131,13 +130,12 @@ export function Main() {
       const utc = dateTime.setZone("UTC").plus({ hours: hour });
       const timeZoneDate = utc.setZone(timeZone.value);
       const timeZoneHour = timeZoneDate.hour;
-      const buttonVariant = timeZoneHour == 0 ? "outline" : "solid";
       const activity = activities[timeZoneHour];
       const colorScheme = colorSchemeFor(activity);
 
       tableElements.push(
         <GridItem key={timeZone.label + "_" + hour}>
-          <Button variant={buttonVariant} colorScheme={colorScheme} size={"xs"}>
+          <Button colorScheme={colorScheme} size={"xs"}>
             {hourSymbols[timeZoneHour]}
           </Button>
         </GridItem>
@@ -232,9 +230,9 @@ export function Main() {
         <CardHeader>
           <Heading size={"md"}>When and where?</Heading>
           <Text>
-            Pick a date and any cities you'd like. We'll look up their current
-            time zones for you. Keep in mind, the list of cities available is
-            based on what your browser supports.
+            Pick a date and any cities you'd like to include. We'll look up
+            their current time zones for you. Keep in mind, the list of cities
+            available is based on what your browser supports.
             <br />
             <br />
             We also take care of things like Daylight Saving Time (DST). For
@@ -291,9 +289,6 @@ export function Main() {
             <Button colorScheme={colorSchemeFor(SLEEP)}>Sleep</Button>
             <Button colorScheme={colorSchemeFor(WORK)}>Work</Button>
             <Button colorScheme={colorSchemeFor(PLAY)}>Play</Button>
-            <Button colorScheme={colorSchemeFor(SLEEP)} variant={"outline"}>
-              Midnight
-            </Button>
           </ButtonGroup>
         </CardHeader>
         <CardBody>
