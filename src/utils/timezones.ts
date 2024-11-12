@@ -47,6 +47,12 @@ function addLabels(groups: { [key: string]: string[] }) {
   return Object.entries(groups).map(asOptions);
 }
 
+export function getUserLocale() {
+  if (navigator.languages != undefined) 
+    return navigator.languages[0]; 
+  return navigator.language;
+}
+
 export function getTimeZoneData(): TimeZoneGroup[] {
   const timeZones = Intl.supportedValuesOf("timeZone");
   const groups = group(timeZones);

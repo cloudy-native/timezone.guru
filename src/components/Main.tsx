@@ -5,6 +5,7 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Divider,
   Flex,
   Grid,
   GridItem,
@@ -119,7 +120,7 @@ export function Main() {
   timeZones.forEach((timeZone) => {
     tableElements.push(
       <GridItem colSpan={24}>
-        <Text size={"xs"} style={{ textTransform: "uppercase" }}>
+        <Text size={"xs"} fontWeight={"bold"} casing={"uppercase"}>
           {timeZone.label}
         </Text>
       </GridItem>
@@ -146,34 +147,31 @@ export function Main() {
   return (
     <VStack align={"stretch"} spacing={4} mt={10}>
       <Intro />
-      <HStack spacing={4}>
-        <Text>Set clock type</Text>
-        <Switch
-          defaultChecked
-          onChange={(v) => {
-            setHourSymbols(v.target.checked ? universalHours : clockHours);
-            setClockType(
-              v.target.checked ? universalClockType : clockHoursClockType
-            );
-          }}
-        >
-          {clockType}
-        </Switch>
-      </HStack>
       <Card>
         <CardHeader>
           <Heading size="md">Sleep, work, play times</Heading>
           <Text>
             Set an activity for each hour in the day. It doesn't have to be very
-            accurate because you'll see a general period of overlap when we get
-            to the good bit.
+            accurate because you'll see a general period of overlap. Here's a
+            good start.
           </Text>
+          <Switch
+            defaultChecked
+            onChange={(v) => {
+              setHourSymbols(v.target.checked ? universalHours : clockHours);
+              setClockType(
+                v.target.checked ? universalClockType : clockHoursClockType
+              );
+            }}
+          >
+            {clockType}
+          </Switch>
         </CardHeader>
         <CardBody>
           <HStack spacing={10}>
             <RadioGroup value={hint}>
               <VStack alignItems={"flex-start"}>
-                <Text>Hint</Text>
+                <Text>Activity</Text>
                 <Radio
                   value={SLEEP}
                   colorScheme={colorSchemeFor(SLEEP)}
@@ -232,7 +230,13 @@ export function Main() {
       <Card>
         <CardHeader>
           <Heading size={"md"}>When and where?</Heading>
-          <Text>Pick a date, find as many time zones as you like.</Text>
+          <Text>
+            Pick a date and as many cities as you like. We'll lookup their
+            current time zones. Note that the list of cities is just the ones
+            supported natively by your browser. We take care of things like
+            Summer Time too. Try London and Paris on October 26, 2024 and see
+            1AM appear twice because the clocks went back an hour at 2AM.
+          </Text>
         </CardHeader>
         <CardBody>
           <Flex alignItems={"stretch"}>
