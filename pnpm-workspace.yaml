@@ -1,0 +1,7 @@
+# Site only — CDK stays a separate package under cdk/
+packages:
+  - "."
+
+allowBuilds:
+  esbuild: true
+  sharp: true

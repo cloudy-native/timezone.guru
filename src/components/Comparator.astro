@@ -1,0 +1,152 @@
+---
+/**
+ * Markup shell for the timezone comparator.
+ * Interactivity is pure client JS (see src/scripts/app.ts).
+ */
+---
+
+<div class="app" data-app>
+  <section class="panel" aria-labelledby="setup-title">
+    <div class="panel-head">
+      <div>
+        <h2 id="setup-title" class="panel-title">Date &amp; locations</h2>
+        <p class="panel-sub">
+          Pick a day, then add cities. Each column is a place; each row is the same
+          moment in your local day. DST is applied automatically.
+        </p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="date-row">
+        <label for="date-input">Date</label>
+        <input id="date-input" type="date" data-date />
+        <button type="button" class="btn btn-sm" data-today>Today</button>
+      </div>
+
+      <div class="city-picker" data-city-picker>
+        <label for="city-search">Add city</label>
+        <input
+          id="city-search"
+          type="search"
+          data-search
+          placeholder="Search cities or zones…"
+          autocomplete="off"
+          enterkeyhint="search"
+        />
+        <ul class="suggestions" data-suggestions hidden></ul>
+        <div class="chips" data-chips></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="grid-title">
+    <div class="panel-head">
+      <div>
+        <h2 id="grid-title" class="panel-title">Schedule</h2>
+        <p class="panel-sub">
+          The <strong>You</strong> column shows overlap: greener means more people are
+          awake at that local hour. City cells show their wall time (sleep blends into the
+          background).
+        </p>
+      </div>
+      <label class="clock-toggle">
+        <input type="checkbox" data-clock-toggle checked />
+        24-hour
+      </label>
+    </div>
+
+    <div class="empty-state" data-empty hidden>
+      <p>Add at least one city to see the comparison.</p>
+    </div>
+
+    <div
+      class="grid-wrap"
+      data-grid
+      role="region"
+      aria-label="Timezone comparison grid"
+    >
+    </div>
+
+    <div class="legend" aria-label="Legend">
+      <span class="legend-group">
+        <span class="legend-title">Overlap</span>
+        <span class="legend-pill avail-none">None</span>
+        <span class="legend-pill avail-low">Few</span>
+        <span class="legend-pill avail-mid">Some</span>
+        <span class="legend-pill avail-high">Most</span>
+        <span class="legend-pill avail-full">All</span>
+      </span>
+      <span class="legend-group">
+        <span class="legend-title">City</span>
+        <span class="legend-pill act-sleep"><span class="act-emoji" aria-hidden="true">💤</span> Sleep</span>
+        <span class="legend-pill act-work"><span class="act-emoji" aria-hidden="true">💼</span> Work</span>
+        <span class="legend-pill act-awake"><span class="act-emoji" aria-hidden="true">☕</span> Awake</span>
+      </span>
+    </div>
+
+    <div class="share-bar" data-share>
+      <div class="share-actions">
+        <button type="button" class="btn btn-sm btn-primary" data-share-copy>
+          Copy link
+        </button>
+        <button type="button" class="btn btn-sm" data-share-native hidden>
+          Share…
+        </button>
+        <span class="share-status" data-share-status aria-live="polite"></span>
+      </div>
+      <div class="share-options">
+        <label class="share-opt">
+          <input type="checkbox" data-share-date />
+          Include date
+        </label>
+        <label class="share-opt">
+          <input type="checkbox" data-share-activities />
+          Include day template
+        </label>
+      </div>
+      <p class="share-hint">
+        Anyone with the link sees these cities
+        <span data-share-hint-extra></span>.
+      </p>
+    </div>
+  </section>
+
+  <details class="panel secondary">
+    <summary>
+      <span>
+        Typical day (sleep / work / awake)
+        <span class="panel-sub" style="font-weight: 500; display: block">
+          Optional template applied to each city’s local hour
+        </span>
+      </span>
+    </summary>
+
+    <div class="secondary-body">
+      <p class="secondary-help">
+        A full day is a <strong>24-hour clock</strong>: midnight at the top, hours run
+        clockwise (each slice is one hour). Drag the ring to paint, or use the AM/PM
+        strips for precise taps.
+      </p>
+
+      <div class="brush-row">
+        <span class="field-label">Paint with</span>
+        <div data-brush></div>
+      </div>
+
+      <div class="preset-row" data-presets>
+        <span class="field-label">Presets</span>
+        <button type="button" class="btn btn-sm" data-preset="workday">Workday 09–17</button>
+        <button type="button" class="btn btn-sm" data-preset="sleep">All sleep</button>
+        <button type="button" class="btn btn-sm" data-preset="awake">All awake</button>
+        <button type="button" class="btn btn-sm" data-preset="reset">Reset default</button>
+      </div>
+
+      <div data-painter aria-label="Activity day editor"></div>
+    </div>
+  </details>
+</div>
+
+<script>
+  import "../scripts/app";
+</script>

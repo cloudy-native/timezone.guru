@@ -1,0 +1,80 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import "../styles/global.css";
+---
+
+<BaseLayout
+  title="About | Time Zone Guru"
+  description="Why Time Zone Guru exists, who made it, and how city and timezone data are sourced."
+>
+  <SiteHeader />
+  <main class="site-main content-page">
+    <article class="prose">
+      <p class="content-kicker"><a href="/">← Compare</a></p>
+      <h1>About</h1>
+      <p class="lede">
+        Time Zone Guru is a small tool for answering “what’s a good time for
+        you?” when family, friends, and colleagues are scattered across the
+        planet.
+      </p>
+
+      <h2>Why it exists</h2>
+      <p>
+        Like many software teams—especially after remote work became normal—we
+        kept talking past each other about the clock. Colleagues in Melbourne
+        are polite about repeating that they are many hours ahead and that
+        “today” might already be “tomorrow” for them. Doing that arithmetic by
+        hand is a chore, and the answer changes with daylight saving.
+      </p>
+      <p>
+        US daylight saving does not line up with Australian rules (or European
+        ones). A fixed “they’re +16 hours” mental model fails for weeks each
+        year. The site always converts through real IANA zones so those
+        transitions stay correct.
+      </p>
+
+      <h2>What it does</h2>
+      <ul>
+        <li>
+          Compare several cities on one vertical day view (mobile-friendly).
+        </li>
+        <li>Highlight hours where more people are likely awake.</li>
+        <li>Optional sleep / work / awake template per local hour of day.</li>
+      </ul>
+
+      <h2>Data &amp; accuracy</h2>
+      <ul>
+        <li>
+          <strong>Cities &amp; zones:</strong>
+          <a href="https://github.com/vvo/tzdb" rel="noopener noreferrer"
+            >@vvo/tzdb</a
+          >
+          for curated major cities on simplified IANA timezones, kept up to date with
+          the timezone database.
+        </li>
+        <li>
+          <strong>Conversion &amp; DST:</strong> the browser’s
+          <code>Intl.DateTimeFormat</code> with a <code>timeZone</code> option (same
+          rules engines use for formatting dates).
+        </li>
+      </ul>
+      <p>
+        Offsets are never hard-coded as permanent numbers. If a government
+        changes a rule, you pick up the fix when your browser (and, for city
+        labels, when tzdb) updates.
+      </p>
+
+      <h2>Built with</h2>
+      <p>
+        Static <a href="https://astro.build" rel="noopener noreferrer">Astro</a> site,
+        a little TypeScript for the interactive compare tool, no heavy UI framework.
+        Hosted as plain files for <a href="https://timezone.guru"
+          >timezone.guru</a
+        >.
+      </p>
+    </article>
+  </main>
+  <SiteFooter />
+</BaseLayout>

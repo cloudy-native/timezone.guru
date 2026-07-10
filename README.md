@@ -1,54 +1,44 @@
-<p align="center">
-  <a href="https://www.gatsbyjs.com/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts">
-    <img alt="Gatsby" src="https://www.gatsbyjs.com/Gatsby-Monogram.svg" width="60" />
-  </a>
-</p>
-<h1 align="center">
-  Gatsby minimal TypeScript starter
-</h1>
+# Time Zone Guru
 
-## 🚀 Quick start
+Compare the same moment across cities. **Hours are rows, locations are columns** — built to work on phones. Daylight saving and other offset changes are handled by the browser’s IANA timezone data.
 
-1.  **Create a Gatsby site.**
+## Develop
 
-    Use the Gatsby CLI to create a new site, specifying the minimal TypeScript starter.
+```shell
+pnpm install
+pnpm dev
+```
 
-    ```shell
-    # create a new Gatsby site using the minimal TypeScript starter
-    npm init gatsby
-    ```
+Open [http://localhost:4321](http://localhost:4321).
 
-2.  **Start developing.**
+## Scripts
 
-    Navigate into your new site’s directory and start it up.
+| Command            | Description                                      |
+| ------------------ | ------------------------------------------------ |
+| `pnpm dev`         | Local dev server                                 |
+| `pnpm build`       | Production build → `dist/`                       |
+| `pnpm preview`     | Serve the production build                       |
+| `pnpm typecheck`   | Astro + TypeScript checks                        |
+| `pnpm deploy`      | Build site and deploy via AWS CDK (S3/CloudFront) |
 
-    ```shell
-    cd my-gatsby-site/
-    npm run develop
-    ```
+## Stack
 
-3.  **Open the code and start customizing!**
+- **Site:** Astro static site + small client TypeScript modules  
+- **Hosting:** AWS CDK → S3 + CloudFront + Route 53 (`cdk/`)  
+- **Domain:** [timezone.guru](https://timezone.guru)
 
-    Your site is now running at http://localhost:8000!
+## Deploy
 
-    Edit `src/pages/index.tsx` to see your site update in real-time!
+Requires AWS credentials and a Route 53 hosted zone for `timezone.guru`. First time in an account/region:
 
-4.  **Learn more**
+```shell
+cd cdk && pnpm install && pnpm exec cdk bootstrap
+```
 
-    - [Documentation](https://www.gatsbyjs.com/docs/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
+Then from the repo root:
 
-    - [Tutorials](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
+```shell
+pnpm deploy
+```
 
-    - [Guides](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
-
-    - [API Reference](https://www.gatsbyjs.com/docs/api-reference/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
-
-    - [Plugin Library](https://www.gatsbyjs.com/plugins?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
-
-    - [Cheat Sheet](https://www.gatsbyjs.com/docs/cheat-sheet/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
-
-## 🚀 Quick start (Gatsby Cloud)
-
-Deploy this starter with one click on [Gatsby Cloud](https://www.gatsbyjs.com/cloud/):
-
-[<img src="https://www.gatsbyjs.com/deploynow.svg" alt="Deploy to Gatsby Cloud">](https://www.gatsbyjs.com/dashboard/deploynow?url=https://github.com/gatsbyjs/gatsby-starter-minimal-ts)
+See [cdk/README.md](./cdk/README.md) for details.

@@ -1,0 +1,134 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import "../styles/global.css";
+---
+
+<BaseLayout
+  title="Help | Time Zone Guru"
+  description="How to compare cities, read overlap, handle daylight saving, and edit the sleep/work/awake template."
+>
+  <SiteHeader />
+  <main class="site-main content-page">
+    <article class="prose">
+      <p class="content-kicker"><a href="/">← Compare</a></p>
+      <h1>Help</h1>
+      <p class="lede">
+        Time Zone Guru shows the same moment in several places at once, so you
+        can spot when people are likely free, even when daylight saving rules
+        differ.
+      </p>
+
+      <h2>Quick start</h2>
+      <ol>
+        <li>
+          <strong>Choose a date</strong> (or tap Today). Rows are hours of
+          <em>your</em> local day on that date.
+        </li>
+        <li>
+          <strong>Add cities</strong> with the search box. Your local city is seeded
+          automatically when we can detect it.
+        </li>
+        <li>
+          <strong>Read the grid</strong>: left column is you; other columns are
+          each city’s wall clock for that same instant.
+        </li>
+        <li>
+          Look for green in the <strong>You</strong> column. That’s when more people
+          are awake.
+        </li>
+      </ol>
+
+      <h2>How to read the schedule</h2>
+      <ul>
+        <li>
+          <strong>Rows = hours</strong> of your local day. Scrolling is vertical,
+          so it works on a phone.
+        </li>
+        <li>
+          <strong>Columns = locations</strong>. Each cell is that city’s local
+          time at the same absolute moment as your hour.
+        </li>
+        <li>
+          <strong>+1 / −1</strong> badges mean that city is already on the next or
+          previous calendar day.
+        </li>
+        <li>
+          <strong>Sleep</strong> cells use the page background so off-hours stay quiet.
+          Work and awake stay colored.
+        </li>
+      </ul>
+
+      <h2>The “You” column (overlap)</h2>
+      <p>
+        For each of your local hours we count how many selected cities are
+        <em>awake</em> (work or free-time “awake” in the activity template). Greener means better
+        multi-person availability. The small fraction (e.g. <code>2/3</code>) is
+        awake / total cities.
+      </p>
+
+      <h2>Daylight saving &amp; offsets</h2>
+      <p>
+        Times use the browser’s IANA timezone database via <code>Intl</code>.
+        When you pick a date in March or November, offsets update automatically
+        for zones that observe DST. Melbourne and New York do not switch on the
+        same weekend, for example.
+      </p>
+      <p>
+        City names and zone ids come from
+        <a href="https://github.com/vvo/tzdb" rel="noopener noreferrer"
+          >@vvo/tzdb</a
+        >
+        (major cities on simplified IANA zones), not from inventing offsets by hand.
+      </p>
+
+      <h2>Sleep / work / awake template</h2>
+      <p>
+        Open <strong>Typical day</strong> at the bottom of the compare tool. That
+        template is matched to each city’s <em>local</em> hour (not yours). Defaults
+        assume night sleep, daytime work, evening awake, which you edit freely.
+      </p>
+      <ul>
+        <li>
+          <strong>24-hour clock</strong>: midnight at the top, hours clockwise,
+          one slice per hour (15°). Drag the ring to paint.
+        </li>
+        <li>
+          <strong>AM / PM strips</strong>: two rows of twelve hours for precise
+          taps.
+        </li>
+        <li>Presets: workday 09–17, all sleep, all awake, or reset.</li>
+      </ul>
+
+      <h2>Share a comparison</h2>
+      <p>
+        Under the schedule, use <strong>Copy link</strong> (or <strong>Share…</strong> on
+        supported phones). The link encodes selected cities in the URL. Optionally include
+        the date and your sleep/work/awake day template. Anyone with the link sees that
+        comparison. No account required.
+      </p>
+      <p>
+        Example:
+        <code>?z=Europe/London,America/New_York&amp;d=2026-07-15</code>
+      </p>
+
+      <h2>Tips</h2>
+      <ul>
+        <li>
+          Search by city, country, or IANA id (e.g. <code>Tokyo</code>, <code
+            >Brazil</code
+          >, <code>Europe/Paris</code>).
+        </li>
+        <li>Remove a city by tapping its chip.</li>
+        <li>Toggle 24-hour vs 12-hour labels in the Schedule panel.</li>
+      </ul>
+
+      <p>
+        More background on why this exists:
+        <a href="/about/">About</a>.
+      </p>
+    </article>
+  </main>
+  <SiteFooter />
+</BaseLayout>

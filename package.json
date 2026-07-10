@@ -1,56 +1,28 @@
 {
   "name": "timezone-guru",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "timezone-guru",
+  "description": "Compare schedules across time zones",
   "author": "Stephen Harrison",
-  "keywords": [
-    "gatsby"
-  ],
+  "type": "module",
   "scripts": {
-    "develop": "gatsby develop",
-    "start": "gatsby develop",
-    "build": "gatsby build",
-    "serve": "gatsby serve",
-    "clean": "gatsby clean",
-    "typecheck": "tsc --noEmit",
-    "generate": "npx ts-node ./script/make_timezone_groups",
-    "deploy": "gatsby build --prefix-paths && gh-pages -d public"
+    "dev": "astro dev",
+    "develop": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "serve": "astro preview",
+    "typecheck": "astro check && tsc --noEmit",
+    "deploy": "pnpm build && pnpm --dir cdk install && pnpm --dir cdk deploy",
+    "cdk": "pnpm --dir cdk exec cdk"
   },
   "dependencies": {
-    "@chakra-ui/gatsby-plugin": "^3.0.6",
-    "@chakra-ui/icons": "^2.0.12",
-    "@chakra-ui/react": "^2.4.1",
-    "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5",
-    "@mdx-js/react": "^2.1.5",
-    "@types/lodash": "^4.14.188",
-    "chakra-dayzed-datepicker": "^0.2.5",
-    "chakra-react-select": "^4.4.0",
-    "date-fns": "^2.29.3",
-    "dayzed": "^3.2.3",
-    "framer-motion": "^7.6.12",
-    "gatsby": "^5.0.0",
-    "gatsby-plugin-google-gtag": "^5.12.1",
-    "gatsby-plugin-image": "^3.0.0",
-    "gatsby-plugin-mdx": "^5.0.0",
-    "gatsby-plugin-sharp": "^5.0.0",
-    "gatsby-source-filesystem": "^5.0.0",
-    "gatsby-transformer-remark": "^6.2.0",
-    "gatsby-transformer-sharp": "^5.0.0",
-    "lodash": "^4.17.21",
-    "query-string": "^7.1.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "ts-node": "^10.9.1"
+    "@vvo/tzdb": "^6.198.0",
+    "astro": "^5.1.0"
   },
   "devDependencies": {
-    "@types/luxon": "^3.1.0",
-    "@types/node": "^18.11.9",
-    "@types/react": "^18.0.25",
-    "@types/react-dom": "^18.0.8",
-    "gh-pages": "^4.0.0",
-    "luxon": "^3.1.0",
-    "typescript": "^4.8.4"
+    "@astrojs/check": "^0.9.4",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
   }
 }

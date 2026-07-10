@@ -1,0 +1,44 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Time Zone Guru",
+  description = "Compare local schedules across cities. Rows are hours, columns are locations — built for mobile, with daylight saving handled automatically.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#5b3cc4" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+
+    <script
+      is:inline
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-QMD15NZW3L"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-QMD15NZW3L", {
+        anonymize_ip: true,
+        cookie_expires: 0,
+      });
+      gtag("config", "GTM-MLK92S88");
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

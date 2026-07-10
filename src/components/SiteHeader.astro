@@ -1,0 +1,30 @@
+---
+interface Props {
+  /** When true, brand uses h1 (home). Otherwise a styled link. */
+  home?: boolean;
+}
+
+const { home = false } = Astro.props;
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+---
+
+<header class="site-header">
+  <div class="brand">
+    {
+      home ? (
+        <h1 class="brand-title">
+          <a href="/">Time Zone Guru</a>
+        </h1>
+      ) : (
+        <p class="brand-title">
+          <a href="/">Time Zone Guru</a>
+        </p>
+      )
+    }
+  </div>
+  <nav class="site-nav" aria-label="Main">
+    <a href="/" class:list={[{ "is-active": path === "/" }]}>Compare</a>
+    <a href="/help/" class:list={[{ "is-active": path.startsWith("/help") }]}>Help</a>
+    <a href="/about/" class:list={[{ "is-active": path.startsWith("/about") }]}>About</a>
+  </nav>
+</header>

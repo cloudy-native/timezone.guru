@@ -1,0 +1,17 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import Hero from "../components/Hero.astro";
+import Comparator from "../components/Comparator.astro";
+import "../styles/global.css";
+---
+
+<BaseLayout title="Time Zone Guru — compare schedules across cities">
+  <SiteHeader home />
+  <main class="site-main">
+    <Hero />
+    <Comparator />
+  </main>
+  <SiteFooter />
+</BaseLayout>

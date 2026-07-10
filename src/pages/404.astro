@@ -1,0 +1,25 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import "../styles/global.css";
+---
+
+<BaseLayout title="Not found | Time Zone Guru">
+  <SiteHeader />
+  <main class="site-main content-page">
+    <div class="prose not-found">
+      <h1>Page not found</h1>
+      <p>
+        Sorry, we couldn’t find what you were looking for.
+        <br />
+        <a href="/">Go home</a>
+        ·
+        <a href="/help/">Help</a>
+        ·
+        <a href="/about/">About</a>
+      </p>
+    </div>
+  </main>
+  <SiteFooter />
+</BaseLayout>
