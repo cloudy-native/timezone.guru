@@ -1,6 +1,6 @@
-# Site only — CDK stays a separate package under cdk/
 packages:
   - "."
+  - "cdk"
 
 allowBuilds:
   esbuild: true

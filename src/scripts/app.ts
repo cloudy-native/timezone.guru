@@ -2,6 +2,8 @@ import {
   ACTIVITIES,
   ACTIVITY_LABEL,
   ACTIVITY_SHORT,
+  AVAILABILITY_EMOJI,
+  AVAILABILITY_LABEL,
   applyRange,
   availabilityFor,
   cycleActivity,
@@ -20,7 +22,9 @@ import {
   listZones,
   localInstant,
   localZoneOption,
+  preferredOptionForZoneId,
   todayIso,
+  zoneMatchesQuery,
   zonedParts,
   type ZoneOption,
 } from "./zones";
@@ -34,30 +38,79 @@ type State = {
   painting: boolean;
 };
 
-function seedDefaultZones(
-  allZones: ZoneOption[],
-  zoneKey: (z: ZoneOption) => string,
-): ZoneOption[] {
-  const zoneById = new Map<string, ZoneOption>();
-  for (const z of allZones) {
-    if (!zoneById.has(z.id)) zoneById.set(z.id, z);
-  }
-
+/**
+ * Default columns: your current location first, then London and New York
+ * (skipping a default that matches your zone so we don’t double up).
+ */
+function seedDefaultZones(allZones: ZoneOption[]): ZoneOption[] {
+  const zoneKey = (z: ZoneOption) => `${z.city}|${z.id}`;
   const initialZones: ZoneOption[] = [];
-  const local = localZoneOption();
-  if (local) initialZones.push(local);
+  const seen = new Set<string>();
 
-  for (const id of ["America/New_York", "Europe/London", "Australia/Melbourne"]) {
-    if (local && id === local.id) continue;
-    const z =
-      zoneById.get(id) ??
-      allZones.find((o) => o.id === id || o.search.includes(id.toLowerCase()));
-    if (z && !initialZones.some((s) => zoneKey(s) === zoneKey(z))) {
-      initialZones.push(z);
-    }
-    if (initialZones.length >= 3) break;
+  const push = (z: ZoneOption | undefined): void => {
+    if (!z) return;
+    const key = zoneKey(z);
+    if (seen.has(key) || seen.has(`id:${z.id}`)) return;
+    seen.add(key);
+    seen.add(`id:${z.id}`);
+    initialZones.push(z);
+  };
+
+  push(localZoneOption());
+  for (const id of ["Europe/London", "America/New_York"]) {
+    push(preferredOptionForZoneId(allZones, id));
   }
   return initialZones;
+}
+
+/** Wall-clock time string for “now” cells (always live, not the selected date). */
+function formatNowTime(
+  instant: Date,
+  timeZone: string,
+  use24h: boolean,
+): { time: string; zoneName: string } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hour: "numeric",
+    minute: "2-digit",
+    hourCycle: use24h ? "h23" : "h12",
+    timeZoneName: "short",
+  }).formatToParts(instant);
+
+  const get = (type: Intl.DateTimeFormatPartTypes): string =>
+    parts.find((p) => p.type === type)?.value ?? "";
+
+  const hour = get("hour");
+  const minute = get("minute");
+  const dayPeriod = get("dayPeriod");
+  const zoneName = get("timeZoneName");
+  const time = use24h
+    ? `${hour.padStart(2, "0")}:${minute}`
+    : `${hour}:${minute}${dayPeriod ? ` ${dayPeriod}` : ""}`;
+
+  return { time, zoneName };
+}
+
+/** Rank search hits: exact city, prefix, country-alias hit, then population. */
+function rankSuggestions(matches: ZoneOption[], q: string): ZoneOption[] {
+  const nq = q.toLowerCase().trim();
+  const score = (z: ZoneOption): number => {
+    const city = z.city.toLowerCase();
+    if (city === nq) return 0;
+    if (city.startsWith(nq)) return 1;
+    if (z.searchTokens.some((t) => t === nq)) return 2;
+    if (z.country.toLowerCase() === nq || z.country.toLowerCase().startsWith(nq))
+      return 3;
+    if (z.searchTokens.some((t) => t.startsWith(nq))) return 4;
+    return 5;
+  };
+  return [...matches].sort((a, b) => {
+    const sa = score(a);
+    const sb = score(b);
+    if (sa !== sb) return sa - sb;
+    if (b.pop !== a.pop) return b.pop - a.pop;
+    return a.city.localeCompare(b.city) || a.country.localeCompare(b.country);
+  });
 }
 
 function init(): void {
@@ -76,7 +129,7 @@ function init(): void {
     zones:
       shared && shared.zones.length > 0
         ? shared.zones
-        : seedDefaultZones(allZones, zoneKey),
+        : seedDefaultZones(allZones),
     activities: shared?.activities ?? defaultActivities(),
     use24h: true,
     paintBrush: "work",
@@ -102,7 +155,6 @@ function init(): void {
     shareCopy: root.querySelector<HTMLButtonElement>("[data-share-copy]")!,
     shareNative: root.querySelector<HTMLButtonElement>("[data-share-native]")!,
     shareStatus: root.querySelector<HTMLElement>("[data-share-status]")!,
-    shareHintExtra: root.querySelector<HTMLElement>("[data-share-hint-extra]")!,
   };
 
   const shareDefaults = defaultShareOptions(
@@ -144,15 +196,6 @@ function init(): void {
     );
   }
 
-  function updateShareHint(): void {
-    const bits: string[] = [];
-    if (els.shareDate.checked) bits.push("date");
-    if (els.shareActivities.checked) bits.push("day template");
-    els.shareHintExtra.textContent =
-      bits.length > 0 ? `, plus ${bits.join(" and ")}` : "";
-  }
-  updateShareHint();
-
   function selectedKeys(): Set<string> {
     return new Set(state.zones.map(zoneKey));
   }
@@ -182,31 +225,43 @@ function init(): void {
       return;
     }
     const taken = selectedKeys();
-    const matches = allZones
-      .filter((z) => !taken.has(zoneKey(z)) && z.search.includes(q))
-      .slice(0, 12);
+    const allMatches = rankSuggestions(
+      allZones.filter((z) => !taken.has(zoneKey(z)) && zoneMatchesQuery(z, q)),
+      q,
+    );
+    const limit = 12;
+    const matches = allMatches.slice(0, limit);
+    const extra = allMatches.length - matches.length;
 
     if (matches.length === 0) {
-      els.suggestions.innerHTML = `<li class="suggest-empty">No matches</li>`;
+      const safe = escapeHtml(query.trim());
+      els.suggestions.innerHTML = `<li class="suggest-empty">No cities match “${safe}”. Try a full name or country (e.g. London, UK).</li>`;
       els.suggestions.hidden = false;
       return;
     }
 
-    els.suggestions.innerHTML = matches
-      .map(
-        (z) =>
-          `<li><button type="button" data-add-key="${escapeHtml(zoneKey(z))}" class="suggest-item">
+    const hint =
+      extra > 0
+        ? `<li class="suggest-hint">Showing top ${matches.length} of ${allMatches.length.toLocaleString()} — type more to narrow</li>`
+        : "";
+
+    els.suggestions.innerHTML =
+      hint +
+      matches
+        .map(
+          (z) =>
+            `<li><button type="button" data-add-key="${escapeHtml(zoneKey(z))}" class="suggest-item">
             <span class="suggest-city">${escapeHtml(z.city)}</span>
             <span class="suggest-meta">${escapeHtml(z.country)} · ${escapeHtml(z.id)}</span>
           </button></li>`,
-      )
-      .join("");
+        )
+        .join("");
     els.suggestions.hidden = false;
   }
 
   function renderChips(): void {
     if (state.zones.length === 0) {
-      els.chips.innerHTML = `<p class="chips-hint">Add cities to compare times.</p>`;
+      els.chips.innerHTML = "";
       return;
     }
     els.chips.innerHTML = state.zones
@@ -226,6 +281,34 @@ function init(): void {
     return state.activities[p.hour] ?? "sleep";
   }
 
+  /** Live wall times only — cheap partial update for the Now row. */
+  function updateNowRow(): void {
+    const now = new Date();
+    const localNow = formatNowTime(now, localZoneIdSafe(), state.use24h);
+    const localEl = els.grid.querySelector<HTMLElement>("[data-now-local]");
+    if (localEl) {
+      localEl.textContent = localNow.time;
+    }
+
+    els.grid.querySelectorAll<HTMLElement>("[data-now-zone]").forEach((el) => {
+      const id = el.dataset.nowZone;
+      if (!id) return;
+      const { time, zoneName } = formatNowTime(now, id, state.use24h);
+      const timeEl = el.querySelector(".now-clock");
+      const zoneEl = el.querySelector(".now-zone");
+      if (timeEl) timeEl.textContent = time;
+      if (zoneEl) zoneEl.textContent = zoneName;
+    });
+  }
+
+  function localZoneIdSafe(): string {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+    } catch {
+      return "UTC";
+    }
+  }
+
   function renderGrid(): void {
     if (state.zones.length === 0) {
       els.grid.hidden = true;
@@ -239,6 +322,11 @@ function init(): void {
     const isToday = state.date === todayIso();
     const currentHour = now.getHours();
     const noon = localInstant(state.date, 12);
+    const localTz = localZoneIdSafe();
+    const localNow = formatNowTime(now, localTz, state.use24h);
+    /** Short offset like city columns (GMT+1, EDT) for the selected date. */
+    const localTzLabel =
+      zonedParts(noon, localTz).zoneName || localTz.replace(/_/g, " ");
 
     const headCells = state.zones
       .map((z) => {
@@ -250,10 +338,22 @@ function init(): void {
       })
       .join("");
 
+    const nowCells = state.zones
+      .map((z) => {
+        const { time, zoneName } = formatNowTime(now, z.id, state.use24h);
+        return `<td class="now-time-cell" data-now-zone="${escapeHtml(z.id)}">
+          <span class="now-clock">${escapeHtml(time)}</span>
+          <span class="now-zone">${escapeHtml(zoneName)}</span>
+        </td>`;
+      })
+      .join("");
+
     const rows = Array.from({ length: 24 }, (_, hour) => {
       const instant = localInstant(state.date, hour);
       const isNow = isToday && hour === currentHour;
       const localLabel = formatHour(hour, state.use24h);
+      // Row hour = your local hour, so the day template applies directly
+      const localAct = state.activities[hour] ?? "sleep";
 
       const cityActs = state.zones.map((z) => activityAtInstant(instant, z.id));
       const avail = availabilityFor(cityActs);
@@ -270,49 +370,31 @@ function init(): void {
                 ? `<span class="day-badge" title="Next calendar day">+${offset}</span>`
                 : `<span class="day-badge" title="Previous calendar day">${offset}</span>`;
 
-          return `<td class="cell act-${activity}${isNow ? " is-now" : ""}">
+          return `<td class="cell avail-${avail.level} act-stripe-${activity}${isNow ? " is-now" : ""}" title="${ACTIVITY_LABEL[activity]}">
             <span class="cell-time">${formatHour(p.hour, state.use24h)}${dayBadge}</span>
-            <span class="cell-act" title="${ACTIVITY_LABEL[activity]}">${ACTIVITY_SHORT[activity]}</span>
+            <span class="cell-act" aria-hidden="true">${ACTIVITY_SHORT[activity]}</span>
           </td>`;
         })
         .join("");
 
-      // Sort work → awake → sleep so the You column scans as availability, not city order
-      const activityRank: Record<Activity, number> = {
-        work: 0,
-        awake: 1,
-        sleep: 2,
-      };
-      const emojiRow = state.zones
-        .map((z, i) => ({
-          city: z.city,
-          activity: cityActs[i]!,
-        }))
-        .sort(
-          (a, b) =>
-            activityRank[a.activity] - activityRank[b.activity] ||
-            a.city.localeCompare(b.city),
-        )
-        .map(
-          ({ city, activity }) =>
-            `<span class="you-emoji" title="${escapeHtml(city)}: ${ACTIVITY_LABEL[activity]}">${ACTIVITY_SHORT[activity]}</span>`,
-        )
-        .join("");
-
-      const scoreLabel =
+      const qualityEmoji = AVAILABILITY_EMOJI[avail.level];
+      const qualityLabel = AVAILABILITY_LABEL[avail.level];
+      const scoreTitle =
         avail.total === 0
-          ? ""
-          : `<span class="avail-score" title="${avail.awake} of ${avail.total} awake">${avail.awake}/${avail.total}</span>`;
+          ? qualityLabel
+          : `${qualityLabel} (${avail.awake} of ${avail.total})`;
 
-      return `<tr class="${isNow ? "row-now" : ""}">
-        <th scope="row" class="hour-cell avail-${avail.level}${isNow ? " is-now" : ""}">
+      return `<tr class="row-avail-${avail.level}${isNow ? " row-now" : ""}">
+        <th scope="row" class="hour-cell avail-${avail.level} act-mark-${localAct}${isNow ? " is-now" : ""}" title="${ACTIVITY_LABEL[localAct]}">
           <div class="you-hour-row">
             <span class="hour-label">${localLabel}</span>
             ${isNow ? `<span class="now-dot" title="Current hour"></span>` : ""}
           </div>
-          <div class="you-emojis" aria-label="Activities sorted work, awake, sleep">${emojiRow}</div>
-          ${scoreLabel}
+          <span class="hour-act" aria-hidden="true">${ACTIVITY_SHORT[localAct]}</span>
         </th>
+        <td class="quality-cell avail-${avail.level}" title="${escapeHtml(scoreTitle)}">
+          <span class="avail-emoji" aria-hidden="true">${qualityEmoji}</span>
+        </td>
         ${cells}
       </tr>`;
     }).join("");
@@ -322,10 +404,22 @@ function init(): void {
         <thead>
           <tr>
             <th scope="col" class="hour-head">
-              <span class="hour-head-label">You</span>
-              <span class="hour-head-sub">overlap</span>
+              <span class="hour-head-label">Your location</span>
+              <span class="hour-head-sub" title="${escapeHtml(localTz)}">${escapeHtml(localTzLabel)}</span>
+
+            </th>
+            <th scope="col" class="quality-head">
+              <span class="quality-head-label">Good</span>
             </th>
             ${headCells}
+          </tr>
+          <tr class="now-row">
+            <th scope="row" class="hour-head now-head">
+              <span class="now-label">Now</span>
+              <span class="now-local" data-now-local>${escapeHtml(localNow.time)}</span>
+            </th>
+            <td class="quality-cell now-quality" aria-hidden="true"></td>
+            ${nowCells}
           </tr>
         </thead>
         <tbody>${rows}</tbody>
@@ -641,9 +735,6 @@ function init(): void {
     render();
   });
 
-  els.shareDate.addEventListener("change", updateShareHint);
-  els.shareActivities.addEventListener("change", updateShareHint);
-
   els.shareCopy.addEventListener("click", async () => {
     if (state.zones.length === 0) {
       setShareStatus("Add a city first");
@@ -680,6 +771,12 @@ function init(): void {
   }
 
   render();
+
+  // Keep the Now row accurate without a full re-render every tick
+  window.setInterval(() => {
+    if (state.zones.length === 0) return;
+    updateNowRow();
+  }, 15_000);
 }
 
 function escapeHtml(s: string): string {

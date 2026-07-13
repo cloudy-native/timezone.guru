@@ -2,7 +2,7 @@ import {
   defaultActivities,
   type Activity,
 } from "./schedule";
-import type { ZoneOption } from "./zones";
+import { preferredOptionForZoneId, type ZoneOption } from "./zones";
 
 export type ShareableState = {
   zones: ZoneOption[];
@@ -45,11 +45,6 @@ const CHAR_ACT: Record<string, Activity> = {
  */
 export function encodeZoneToken(z: Pick<ZoneOption, "city" | "id">): string {
   return `${z.city}@${z.id}`;
-}
-
-/** IANA path tail as a display city, e.g. Europe/London → London. */
-function zoneTailCity(ianaId: string): string {
-  return (ianaId.split("/").pop() ?? ianaId).replace(/_/g, " ");
 }
 
 export function encodeActivities(activities: Activity[]): string {
@@ -118,8 +113,8 @@ export function resolveZoneToken(
       (z) => z.id === id && z.city.toLowerCase() === city.toLowerCase(),
     );
     if (exact) return exact;
-    // Prefer zone-tail city when id matches, then any same-id option
-    const preferred = pickZoneById(allZones, id);
+    // Prefer zone-tail / largest city when id matches; keep shared city label if given
+    const preferred = preferredOptionForZoneId(allZones, id);
     if (preferred && city) {
       return { ...preferred, city, label: `${city}, ${preferred.country}` };
     }
@@ -127,34 +122,15 @@ export function resolveZoneToken(
   }
 
   // Bare IANA id — never use first alphabetical city (Birmingham before London)
-  const byId = pickZoneById(allZones, t);
+  const byId = preferredOptionForZoneId(allZones, t);
   if (byId) return byId;
 
-  // City name only (first match)
-  const byCity = allZones.find((z) => z.city.toLowerCase() === t.toLowerCase());
-  return byCity;
-}
-
-/**
- * Prefer the option whose city matches the IANA id tail (London for Europe/London).
- * Falls back to any option with that id.
- */
-function pickZoneById(
-  allZones: ZoneOption[],
-  ianaId: string,
-): ZoneOption | undefined {
-  const matches = allZones.filter((z) => z.id === ianaId);
-  if (matches.length === 0) return undefined;
-  if (matches.length === 1) return matches[0];
-
-  const tail = zoneTailCity(ianaId).toLowerCase();
-  const byTail = matches.find((z) => z.city.toLowerCase() === tail);
-  if (byTail) return byTail;
-
-  // Same zone, different city names — keep list order from listZones (alpha by city)
-  // Prefer the city that appears first in the original tzdb mainCities when possible:
-  // listZones is sorted by city; tail match already handled the common case.
-  return matches[0];
+  // City name only — prefer highest population when names collide
+  const cityMatches = allZones.filter(
+    (z) => z.city.toLowerCase() === t.toLowerCase(),
+  );
+  if (cityMatches.length === 0) return undefined;
+  return cityMatches.reduce((best, z) => (z.pop > best.pop ? z : best));
 }
 
 /** Parse share params from a URLSearchParams / location.search. */

@@ -8,15 +8,43 @@ export const ACTIVITY_LABEL: Record<Activity, string> = {
   awake: "Awake",
 };
 
-/** Compact marks for grid cells / legend (quiet emoji, not loud). */
+/** Marks for the day-template painter (sleep / work / free). */
 export const ACTIVITY_SHORT: Record<Activity, string> = {
   sleep: "💤",
-  work: "💼",
+  work: "⚒️",
   awake: "☕",
 };
 
 /** How many people are awake (work or free-time) at a simultaneous moment. */
 export type AvailabilityLevel = "none" | "low" | "mid" | "high" | "full";
+
+/**
+ * Slot quality (non-weather): dark crescent → sun, matching the green color ramp.
+ * 🌒 worst → 😴 → 😐 → 🙂 → ☀️ best
+ */
+export const AVAILABILITY_EMOJI: Record<AvailabilityLevel, string> = {
+  none: "🌒",
+  low: "😴",
+  mid: "😐",
+  high: "🙂",
+  full: "☀️",
+};
+
+export const AVAILABILITY_LABEL: Record<AvailabilityLevel, string> = {
+  none: "Nobody awake",
+  low: "Few awake",
+  mid: "Some awake",
+  high: "Most awake",
+  full: "Everyone awake",
+};
+
+export const AVAILABILITY_LEVELS: AvailabilityLevel[] = [
+  "none",
+  "low",
+  "mid",
+  "high",
+  "full",
+];
 
 export type Availability = {
   awake: number;

@@ -12,7 +12,6 @@ import "../styles/global.css";
   <SiteHeader />
   <main class="site-main content-page">
     <article class="prose">
-      <p class="content-kicker"><a href="/">← Compare</a></p>
       <h1>Help</h1>
       <p class="lede">
         Time Zone Guru shows the same moment in several places at once, so you
@@ -23,28 +22,33 @@ import "../styles/global.css";
       <h2>Quick start</h2>
       <ol>
         <li>
-          <strong>Choose a date</strong> (or tap Today). Rows are hours of
-          <em>your</em> local day on that date.
+          <strong>Now</strong> (top row) shows the live clock in each city.
         </li>
         <li>
-          <strong>Add cities</strong> with the search box. Your local city is seeded
-          automatically when we can detect it.
+          <strong>Add or remove cities</strong> with search and the chips.
+          Defaults are your current location, London, and New York (duplicates
+          of your zone are skipped).
         </li>
         <li>
-          <strong>Read the grid</strong>: left column is you; other columns are
-          each city’s wall clock for that same instant.
+          <strong>Rows</strong> are hours of your local day; columns are each city’s
+          wall time at that same moment.
         </li>
         <li>
-          Look for green in the <strong>You</strong> column. That’s when more people
-          are awake.
+          The <strong>Good</strong> column (emoji + green) shows how many cities are awake.
         </li>
       </ol>
 
       <h2>How to read the schedule</h2>
       <ul>
         <li>
-          <strong>Rows = hours</strong> of your local day. Scrolling is vertical,
-          so it works on a phone.
+          <strong>Now</strong> is always live wall time, independent of the selected date.
+        </li>
+        <li>
+          <strong>Your location</strong> is the first column: hours of your local day,
+          with a short zone label (e.g. <code>GMT+1</code>, <code>EDT</code>).
+        </li>
+        <li>
+          <strong>Rows = hours</strong> of your local day on the chosen date.
         </li>
         <li>
           <strong>Columns = locations</strong>. Each cell is that city’s local
@@ -54,19 +58,23 @@ import "../styles/global.css";
           <strong>+1 / −1</strong> badges mean that city is already on the next or
           previous calendar day.
         </li>
-        <li>
-          <strong>Sleep</strong> cells use the page background so off-hours stay quiet.
-          Work and awake stay colored.
-        </li>
       </ul>
 
-      <h2>The “You” column (overlap)</h2>
+      <h2>Colors</h2>
       <p>
         For each of your local hours we count how many selected cities are
-        <em>awake</em> (work or free-time “awake” in the activity template). Greener means better
-        multi-person availability. The small fraction (e.g. <code>2/3</code>) is
-        awake / total cities.
+        <em>awake</em> (work or free-time in the day template).
       </p>
+      <ul>
+        <li>
+          <strong>Who’s free / Good</strong> (row color + emoji from 🌒 to ☀️): how
+          good the hour is for everyone (hover for the exact count).
+        </li>
+        <li>
+          <strong>In each city</strong> (💤 ⚒️ ☕): sleep / work / awake from the day
+          template for that place’s local hour.
+        </li>
+      </ul>
 
       <h2>Daylight saving &amp; offsets</h2>
       <p>
@@ -76,11 +84,9 @@ import "../styles/global.css";
         same weekend, for example.
       </p>
       <p>
-        City names and zone ids come from
-        <a href="https://github.com/vvo/tzdb" rel="noopener noreferrer"
-          >@vvo/tzdb</a
-        >
-        (major cities on simplified IANA zones), not from inventing offsets by hand.
+        City names come from a GeoNames-based extract (larger cities worldwide plus
+        each country’s main places), each mapped to an IANA zone id. Offsets are
+        never invented by hand.
       </p>
 
       <h2>Sleep / work / awake template</h2>
@@ -116,12 +122,15 @@ import "../styles/global.css";
       <h2>Tips</h2>
       <ul>
         <li>
-          Search by city, country, or IANA id (e.g. <code>Tokyo</code>, <code
-            >Brazil</code
-          >, <code>Europe/Paris</code>).
+          Search by city, country, abbreviation, or IANA id (e.g. <code>Tokyo</code>,
+          <code>UK</code>, <code>USA</code> / <code>America</code>, <code>NYC</code>,
+          <code>Europe/Paris</code>). Type more letters to narrow long result lists.
         </li>
         <li>Remove a city by tapping its chip.</li>
-        <li>Toggle 24-hour vs 12-hour labels in the Schedule panel.</li>
+        <li>Use the <strong>12h / 24h</strong> switch next to the date control.</li>
+        <li>
+          Many cities scroll sideways in the grid; the first two columns stay put.
+        </li>
       </ul>
 
       <p>

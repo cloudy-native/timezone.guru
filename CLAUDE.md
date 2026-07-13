@@ -5,12 +5,13 @@
 - `pnpm build`: Build for production (`dist/`)
 - `pnpm preview` or `pnpm serve`: Serve production build locally
 - `pnpm typecheck`: Run Astro + TypeScript type checking
+- `pnpm cities:extract`: Download GeoNames + rebuild `src/data/cities.json` (commit the result)
 - `pnpm deploy`: Build site and deploy via AWS CDK (`cdk/` → S3 + CloudFront)
 
 ## Stack
 - **Astro** static site (no React / no UI kit)
 - **Vanilla TypeScript** client modules for interactivity (`src/scripts/`)
-- **@vvo/tzdb** for searchable major cities + IANA zones (not browser zone enumeration)
+- **GeoNames** city extract (`src/data/cities.json`, via `scripts/extract-cities.mjs`) for searchable cities → IANA zones; `@vvo/tzdb` used only at extract time for low-pop main cities
 - **Intl** for wall-time conversion (DST-correct via the runtime IANA data)
 
 ## Code Style Guidelines

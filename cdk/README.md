@@ -1,56 +1,62 @@
 # timezone.guru — AWS CDK
 
-Hosts the Astro static build on **S3 + CloudFront**, with **Route 53** DNS and an ACM certificate for `timezone.guru` / `www.timezone.guru`.
+Hosts the Astro static build on **S3 website hosting + CloudFront**, with **Route 53** DNS and an ACM certificate for `timezone.guru` / `www.timezone.guru`.
 
 ```
-dist/  →  S3 (private)  →  CloudFront (HTTPS, www→apex)  →  Route 53 A records
+dist/  →  S3 (public website)  →  CloudFront (HTTPS, www→apex)  →  Route 53
 ```
+
+The bucket is **publicly readable**. That matches the product: the same HTML is served on CloudFront. Website hosting gives directory indexes for free (`/help/` → `help/index.html`), so no path-rewrite function is required.
 
 ## Prerequisites
 
-1. AWS CLI credentials with rights for S3, CloudFront, ACM, Route 53, IAM  
-2. A public hosted zone for `timezone.guru` in Route 53 (same account)  
+1. AWS CLI credentials (S3, CloudFront, ACM, Route 53, IAM)  
+2. Route 53 public hosted zone for `timezone.guru`  
 3. Node.js 20+ and pnpm  
-4. CDK bootstrapped once per account/region:
+4. From the **repo root**:
+
+```bash
+pnpm install
+```
+
+5. Bootstrap CDK once per account/region (**us-east-1** for CloudFront certs):
 
 ```bash
 cd cdk
-pnpm install
 pnpm exec cdk bootstrap
 ```
 
-CloudFront certificates must live in **us-east-1**. Set the stack region accordingly (default in the app is `us-east-1`).
-
 ## Deploy
 
-From the repo root (builds the site, then deploys):
+From the **repo root**:
 
 ```bash
-pnpm deploy
+pnpm site:deploy
 ```
 
-Or from `cdk/` after a local build:
+Or:
 
 ```bash
-# from repo root
-pnpm build
-
+pnpm site:build
 cd cdk
-pnpm install
-pnpm deploy
+pnpm exec cdk deploy
 ```
+
+Use **`pnpm exec cdk …`** so deps resolve from this package. A bare global `cdk` often fails with missing `aws-cdk-lib`.
 
 ## Useful commands
 
 | Command | Description |
 | --- | --- |
-| `pnpm synth` | CloudFormation template |
-| `pnpm diff` | Pending changes |
-| `pnpm deploy` | Deploy stack |
-| `pnpm destroy` | Tear down stack (empties the site bucket) |
+| `pnpm exec cdk ls` | List stacks |
+| `pnpm exec cdk synth` | CloudFormation template |
+| `pnpm exec cdk diff` | Pending changes |
+| `pnpm exec cdk deploy` | Deploy stack (expects fresh `../dist`) |
+| `pnpm exec cdk destroy` | Tear down stack |
 
 ## Notes
 
-- Deployment source is `../dist` (Astro output). Always `pnpm build` first.  
-- `www` requests are 301-redirected to the apex via a CloudFront Function.  
-- 403/404 from the origin map to `/404.html`.
+- Always `pnpm site:build` before deploy so `../dist` is current.  
+- Origin is the **S3 website endpoint** (HTTP between CloudFront and S3; viewers still get HTTPS).  
+- CloudFront Function only redirects `www` → apex.  
+- Content is public at the bucket website URL as well as on the custom domain.

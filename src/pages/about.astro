@@ -12,7 +12,6 @@ import "../styles/global.css";
   <SiteHeader />
   <main class="site-main content-page">
     <article class="prose">
-      <p class="content-kicker"><a href="/">← Compare</a></p>
       <h1>About</h1>
       <p class="lede">
         Time Zone Guru is a small tool for answering “what’s a good time for
@@ -48,11 +47,13 @@ import "../styles/global.css";
       <ul>
         <li>
           <strong>Cities &amp; zones:</strong>
-          <a href="https://github.com/vvo/tzdb" rel="noopener noreferrer"
-            >@vvo/tzdb</a
-          >
-          for curated major cities on simplified IANA timezones, kept up to date with
-          the timezone database.
+          searchable places from
+          <a href="https://www.geonames.org/" rel="noopener noreferrer">GeoNames</a>
+          (cities roughly population ≥ 100k or each country’s largest places),
+          plus main cities from
+          <a href="https://github.com/vvo/tzdb" rel="noopener noreferrer">@vvo/tzdb</a>
+          so smaller / remote zone labels stay findable. Each city maps to an IANA
+          timezone id.
         </li>
         <li>
           <strong>Conversion &amp; DST:</strong> the browser’s
@@ -62,8 +63,8 @@ import "../styles/global.css";
       </ul>
       <p>
         Offsets are never hard-coded as permanent numbers. If a government
-        changes a rule, you pick up the fix when your browser (and, for city
-        labels, when tzdb) updates.
+        changes a rule, you pick up the fix when your browser updates. City labels
+        refresh when we re-extract the GeoNames dump.
       </p>
 
       <h2>Built with</h2>

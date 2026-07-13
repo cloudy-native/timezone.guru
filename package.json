@@ -10,19 +10,24 @@
     "develop": "astro dev",
     "start": "astro dev",
     "build": "astro build",
+    "site:build": "astro build",
     "preview": "astro preview",
     "serve": "astro preview",
     "typecheck": "astro check && tsc --noEmit",
-    "deploy": "pnpm build && pnpm --dir cdk install && pnpm --dir cdk deploy",
-    "cdk": "pnpm --dir cdk exec cdk"
+    "cities:extract": "node scripts/extract-cities.mjs",
+    "site:deploy": "pnpm site:build && pnpm --filter timezone-guru-cdk deploy",
+    "deploy": "pnpm site:deploy",
+    "cdk": "pnpm --filter timezone-guru-cdk exec cdk",
+    "cdk:deploy": "pnpm --filter timezone-guru-cdk deploy",
+    "cdk:diff": "pnpm --filter timezone-guru-cdk exec cdk diff"
   },
   "dependencies": {
-    "@vvo/tzdb": "^6.198.0",
     "astro": "^5.1.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
     "@types/node": "^22.10.2",
+    "@vvo/tzdb": "^6.198.0",
     "typescript": "^5.7.2"
   }
 }
